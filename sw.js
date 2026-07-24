@@ -1,13 +1,18 @@
 /* 야구 룰 사전 — 서비스워커 (오프라인 캐시)
    룰을 바꾼 뒤 배포할 때는 아래 CACHE 버전을 올리세요 (예: v1 -> v2). */
-const CACHE = 'baseball-rules-v1';
+const CACHE = 'baseball-rules-v2';
 const ASSETS = [
   './',
   './index.html',
   './rules-data.js',
   './manifest.webmanifest',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './sprite-baseball.png',
+  './sprite-bat.png',
+  './sprite-glove.png',
+  './sprite-jersey.png',
+  './sprite-cap.png'
 ];
 
 self.addEventListener('install', (e) => {
