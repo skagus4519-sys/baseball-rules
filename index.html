@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>야구 룰 사전 ⚾ | 입문자부터 야친자까지</title>
+<meta name="description" content="야구 룰과 용어를 입문자부터 야친자까지 단계별로 설명하고 퀴즈로 익히는 비공식 야구 룰 사전." />
+<meta name="theme-color" content="#0f1419" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon-180.png" />
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171e26; --panel2:#1e2731; --line:#2a3542;
+    --txt:#e8eef4; --sub:#93a3b4; --accent:#ff7a45; --accent2:#ffd166;
+    --l1:#4ade80; --l2:#38bdf8; --l3:#a78bfa; --l4:#fb7185;
+    --grass:#2f6b3a; --grass2:#37793f; --dirt:#b07b4a; --dirt2:#c98b52;
+    --shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Pretendard','Segoe UI',-apple-system,'Malgun Gothic',sans-serif;
+    background:radial-gradient(1200px 600px at 50% -200px,#1a2530,#0f1419 60%);
+    color:var(--txt);line-height:1.65;min-height:100vh;padding-bottom:60px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px}
+  a{color:inherit}
+
+  header{text-align:center;padding:30px 16px 8px}
+  header .ball{font-size:42px;filter:drop-shadow(0 4px 10px rgba(255,122,69,.4))}
+  header h1{font-size:25px;font-weight:800;letter-spacing:-.5px;margin-top:4px}
+  header p{color:var(--sub);font-size:13.5px;margin-top:5px}
+
+  /* 상단 뷰 네비 */
+  .nav{display:flex;gap:8px;justify-content:center;margin:16px 0 4px;flex-wrap:wrap}
+  .nav button{padding:10px 18px;border-radius:12px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--sub);font-size:15px;font-weight:700;cursor:pointer;transition:.15s}
+  .nav button.on{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(255,122,69,.3)}
+
+  .view{display:none;animation:fade .25s ease}
+  .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* 검색 */
+  .search-box{position:sticky;top:0;z-index:50;padding:12px 0 8px;
+    background:linear-gradient(180deg,#0f1419 72%,rgba(15,20,25,0))}
+  .search-inner{position:relative}
+  .search-inner input{width:100%;padding:15px 46px;border-radius:14px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--txt);font-size:16px;outline:none;transition:.15s}
+  .search-inner input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,69,.15)}
+  .search-inner .ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:18px;opacity:.7}
+  .search-inner .clr{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;
+    color:var(--sub);font-size:20px;display:none;border:none;background:none}
+  .suggest{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel2);
+    border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;display:none}
+  .suggest.on{display:block}
+  .suggest .item{padding:11px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+  .suggest .item:last-child{border-bottom:none}
+  .suggest .item:hover,.suggest .item.active{background:var(--panel)}
+  .suggest .item .t{font-weight:600;font-size:15px}
+  .suggest .item .a{color:var(--sub);font-size:12px;margin-left:auto;text-align:right}
+  .suggest mark{background:rgba(255,209,102,.28);color:var(--accent2);border-radius:3px;padding:0 2px}
+
+  /* 필터 라벨 */
+  .filt-label{font-size:11.5px;color:var(--sub);font-weight:700;letter-spacing:.4px;margin:12px 2px 6px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--sub);cursor:pointer;font-size:13.5px;font-weight:600;
+    white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:7px}
+  .tab .dot{width:9px;height:9px;border-radius:50%}
+  .tab.on{color:#fff;border-color:transparent}
+  .tab[data-lv="all"].on,.chip[data-sit="all"].on{background:var(--accent)}
+  .tab[data-lv="1"].on{background:var(--l1);color:#062b12}
+  .tab[data-lv="2"].on{background:var(--l2);color:#04283a}
+  .tab[data-lv="3"].on{background:var(--l3);color:#20153f}
+  .tab[data-lv="4"].on{background:var(--l4);color:#3d0d18}
+  .chip{flex:0 0 auto;padding:8px 13px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--sub);cursor:pointer;font-size:13.5px;font-weight:600;white-space:nowrap;transition:.15s}
+  .chip.on{background:var(--panel2);color:var(--accent2);border-color:var(--accent2)}
+  .levelhint{font-size:12.5px;color:var(--sub);padding:8px 4px 2px}
+
+  .count{font-size:13px;color:var(--sub);padding:12px 4px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;transition:.15s}
+  .card.open{border-color:var(--accent)}
+  .card .head{padding:15px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:11px}
+  .card .badge{flex:0 0 auto;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;margin-top:2px}
+  .b1{background:rgba(74,222,128,.15);color:var(--l1)} .b2{background:rgba(56,189,248,.15);color:var(--l2)}
+  .b3{background:rgba(167,139,250,.15);color:var(--l3)} .b4{background:rgba(251,113,133,.15);color:var(--l4)}
+  .card .htxt{flex:1;min-width:0}
+  .card .title{font-size:16.5px;font-weight:700;letter-spacing:-.3px}
+  .card .tags{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}
+  .card .cat{font-size:10.5px;color:var(--sub);border:1px solid var(--line);padding:1px 6px;border-radius:5px}
+  .card .summary{font-size:13.5px;color:var(--sub);margin-top:4px}
+  .card .arrow{flex:0 0 auto;color:var(--sub);transition:.2s;margin-top:3px}
+  .card.open .arrow{transform:rotate(180deg)}
+  .card .body{max-height:0;overflow:hidden;transition:max-height .28s ease;padding:0 16px}
+  .card.open .body{max-height:900px;padding:14px 16px 18px;border-top:1px solid var(--line)}
+  .card .body p{font-size:14.5px;margin-bottom:8px;color:#d3dde6}
+  .card .body p:last-child{margin-bottom:0}
+  .card .body b{color:var(--accent2);font-weight:700}
+  .card .body a[data-jump]{color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .empty{text-align:center;color:var(--sub);padding:40px 0}
+  .empty .big{font-size:40px;margin-bottom:8px}
+  mark.hl{background:rgba(255,122,69,.3);color:#fff;border-radius:3px;padding:0 2px}
+  @keyframes flash{0%{background:rgba(255,209,102,.25)}100%{background:var(--panel)}}
+  .card.flash{animation:flash 1.4s ease}
+
+  /* ===== 포지션 뷰 ===== */
+  .section-title{font-size:19px;font-weight:800;margin:18px 4px 4px}
+  .section-sub{font-size:13px;color:var(--sub);margin:0 4px 14px}
+  .field-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .field-svg{width:100%;max-width:440px;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+  .pos-dot{cursor:pointer;transition:.15s}
+  .pos-dot circle{transition:.15s}
+  .pos-dot:hover circle,.pos-dot.sel circle{stroke:#fff;stroke-width:3}
+  .pos-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:440px}
+  .pos-legend button{padding:9px 6px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel);
+    color:var(--txt);cursor:pointer;font-size:13px;font-weight:600;transition:.15s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .pos-legend button.sel{border-color:var(--accent);background:var(--panel2)}
+  .pos-legend .n{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;
+    align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .pos-detail{width:100%;max-width:440px;background:var(--panel2);border:1px solid var(--accent);border-radius:14px;padding:16px}
+  .pos-detail h3{font-size:17px;margin-bottom:3px}
+  .pos-detail .en{font-size:12px;color:var(--sub);margin-bottom:8px}
+  .pos-detail p{font-size:14px;color:#d3dde6}
+
+  /* ===== 보는 법 뷰 ===== */
+  .guide-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-bottom:20px}
+  .guide-card h2{font-size:18px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .guide-card .desc{font-size:13px;color:var(--sub);margin-bottom:14px}
+  .guide-svg{width:100%;height:auto;border-radius:12px;display:block;background:#0b1016;border:1px solid var(--line)}
+  .legend-list{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  .legend-list .row{display:flex;gap:11px;align-items:flex-start;font-size:13.5px}
+  .legend-list .key{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:24px;
+    padding:0 7px;border-radius:7px;font-size:12px;font-weight:800;color:#0b1016}
+  .legend-list .txt{color:#d3dde6}
+  .legend-list .txt b{color:var(--accent2)}
+  .tip{margin-top:14px;background:rgba(255,122,69,.08);border:1px solid rgba(255,122,69,.3);border-radius:10px;
+    padding:11px 13px;font-size:13px;color:#e8d3c6}
+  .tip b{color:var(--accent2)}
+
+  footer{text-align:center;color:var(--sub);font-size:12px;padding:24px 0 0}
+
+  /* ===== 퀴즈 뷰 ===== */
+  .quiz-start{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 18px;margin-top:16px}
+  .quiz-start h2{font-size:19px;font-weight:800;margin-bottom:6px}
+  .quiz-start p{font-size:13.5px;color:var(--sub);margin-bottom:16px}
+  .quiz-start .lbl{font-size:11.5px;color:var(--sub);font-weight:700;letter-spacing:.4px;margin:12px 2px 8px}
+  .qopt-row{display:flex;gap:8px;flex-wrap:wrap}
+  .qopt{padding:9px 15px;border-radius:999px;border:1.5px solid var(--line);background:var(--panel2);
+    color:var(--sub);cursor:pointer;font-size:14px;font-weight:600;transition:.15s}
+  .qopt.on{background:var(--accent);color:#fff;border-color:transparent}
+  .quiz-start .go{margin-top:22px;width:100%;padding:15px;border:none;border-radius:14px;
+    background:var(--accent);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(255,122,69,.3)}
+
+  .quiz-play{margin-top:16px}
+  .quiz-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .quiz-bar .prog{font-size:13px;color:var(--sub);font-weight:700}
+  .quiz-bar .score{font-size:13px;color:var(--accent2);font-weight:800}
+  .quiz-track{height:7px;background:var(--panel2);border-radius:99px;overflow:hidden;margin-bottom:18px}
+  .quiz-track .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+  .quiz-q{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 18px;margin-bottom:14px}
+  .quiz-q .qtype{display:inline-block;font-size:11px;font-weight:800;color:var(--accent2);
+    background:rgba(255,209,102,.12);padding:3px 9px;border-radius:6px;margin-bottom:12px}
+  .quiz-q .qtext{font-size:17px;font-weight:700;line-height:1.5}
+  .quiz-q .qtext .lv{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle}
+  .answers{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .answer{text-align:left;padding:14px 15px;border-radius:12px;border:1.5px solid var(--line);
+    background:var(--panel);color:var(--txt);cursor:pointer;font-size:14.5px;line-height:1.5;transition:.15s;width:100%}
+  .answer:hover:not(:disabled){border-color:var(--accent)}
+  .answer:disabled{cursor:default}
+  .answer.correct{border-color:var(--l1);background:rgba(74,222,128,.12);color:#c9f5d6}
+  .answer.wrong{border-color:var(--l4);background:rgba(251,113,133,.12);color:#f7c9d1}
+  .answer .mk{float:right;font-weight:900;margin-left:8px}
+  .explain{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:10px;padding:13px 14px;margin-top:14px;font-size:13.5px;color:#d3dde6;display:none}
+  .explain.on{display:block}
+  .explain b{color:var(--accent2)}
+  .quiz-next{margin-top:14px;width:100%;padding:14px;border:none;border-radius:14px;background:var(--accent);
+    color:#fff;font-size:15px;font-weight:800;cursor:pointer;display:none}
+  .quiz-next.on{display:block}
+  .quiz-result{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 18px;margin-top:16px;text-align:center}
+  .quiz-result .emo{font-size:52px}
+  .quiz-result h2{font-size:24px;font-weight:800;margin:8px 0 4px}
+  .quiz-result .big{font-size:40px;font-weight:900;color:var(--accent2);margin:6px 0}
+  .quiz-result p{color:var(--sub);font-size:14px;margin-bottom:18px}
+  .quiz-result button{padding:13px 22px;border:none;border-radius:12px;background:var(--accent);
+    color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin:0 5px}
+  .quiz-result button.ghost{background:var(--panel2);color:var(--txt);border:1.5px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="ball">⚾</div>
+    <h1>야구 룰 사전</h1>
+    <p>입문자 · 집관러 · 직관러 · 야친자 — 쉬운 룰부터 어려운 룰까지</p>
+  </header>
+
+  <div class="nav">
+    <button data-view="rules" class="on">📖 룰 사전</button>
+    <button data-view="pos">⚾ 포지션</button>
+    <button data-view="guide">📺 보는 법</button>
+    <button data-view="quiz">🧩 퀴즈</button>
+  </div>
+
+  <!-- ============ 룰 사전 ============ -->
+  <section class="view on" id="view-rules">
+    <div class="search-box">
+      <div class="search-inner">
+        <span class="ico">🔍</span>
+        <input id="q" type="text" placeholder="룰 이름 검색  (예: 인필드, 낫아웃, 보크, 태그업…)" autocomplete="off" />
+        <button class="clr" id="clr" aria-label="지우기">×</button>
+        <div class="suggest" id="suggest"></div>
+      </div>
+    </div>
+
+    <div class="filt-label">숙련도</div>
+    <div class="tabs" id="tabs">
+      <div class="tab on" data-lv="all"><span class="dot" style="background:var(--accent)"></span>전체</div>
+      <div class="tab" data-lv="1"><span class="dot" style="background:var(--l1)"></span>입문자</div>
+      <div class="tab" data-lv="2"><span class="dot" style="background:var(--l2)"></span>집관러</div>
+      <div class="tab" data-lv="3"><span class="dot" style="background:var(--l3)"></span>직관러</div>
+      <div class="tab" data-lv="4"><span class="dot" style="background:var(--l4)"></span>야친자</div>
+    </div>
+
+    <div class="filt-label">상황</div>
+    <div class="tabs" id="chips"></div>
+
+    <div class="levelhint" id="levelhint"></div>
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </section>
+
+  <!-- ============ 포지션 ============ -->
+  <section class="view" id="view-pos">
+    <div class="section-title">⚾ 기본 수비 포지션</div>
+    <p class="section-sub">그림의 번호(또는 아래 버튼)를 눌러 각 포지션의 역할을 확인하세요.</p>
+    <div class="field-wrap">
+      <svg class="field-svg" id="field" viewBox="0 0 400 400" aria-label="야구장 포지션 그림"></svg>
+      <div class="pos-legend" id="posLegend"></div>
+      <div class="pos-detail" id="posDetail"></div>
+    </div>
+  </section>
+
+  <!-- ============ 보는 법 ============ -->
+  <section class="view" id="view-guide">
+    <div class="section-title" style="margin-top:16px">📺 중계 · 전광판 보는 법</div>
+    <p class="section-sub">화면 속 숫자와 그림이 무슨 뜻인지 한눈에 익혀보세요.</p>
+
+    <!-- 중계 화면 -->
+    <div class="guide-card">
+      <h2>📺 중계 화면(스코어보드 그래픽) 보는 법</h2>
+      <p class="desc">중계 화면 구석에 항상 떠 있는 작은 정보창을 ‘스코어 그래픽(스코어버그)’이라고 해요.</p>
+      <svg class="guide-svg" viewBox="0 0 640 300" id="svgBroadcast" aria-label="중계 화면 예시"></svg>
+      <div class="legend-list" id="legendBroadcast"></div>
+      <div class="tip">💡 <b>주자 다이아몬드</b>가 불(색)이 켜진 베이스에 주자가 있다는 뜻. <b>파란 점 3개</b>는 볼, 노란 2개는 스트라이크, 빨강은 아웃 카운트예요.</div>
+    </div>
+
+    <!-- 전광판 -->
+    <div class="guide-card">
+      <h2>🔢 전광판(라인스코어) 보는 법</h2>
+      <p class="desc">경기장·중계의 큰 전광판은 이닝별 점수표(라인스코어)예요. 오른쪽 R·H·E가 핵심.</p>
+      <svg class="guide-svg" viewBox="0 0 640 168" id="svgScoreboard" aria-label="전광판 예시"></svg>
+      <div class="legend-list" id="legendScoreboard"></div>
+      <div class="tip">💡 맨 오른쪽 <b>R</b>(득점)만 보면 누가 이기는지 바로 알 수 있어요. <b>H</b>는 안타, <b>E</b>는 실책 수. 이닝 칸의 <b>X</b>는 홈팀이 앞서서 9회말을 치르지 않았다는 표시예요.</div>
+    </div>
+  </section>
+
+  <!-- ============ 퀴즈 ============ -->
+  <section class="view" id="view-quiz">
+    <div class="section-title" style="margin-top:16px">🧩 야구 룰 퀴즈</div>
+    <p class="section-sub">룰 설명을 보고 이름을 맞히거나, 이름을 보고 맞는 설명을 골라보세요.</p>
+
+    <!-- 시작 화면 -->
+    <div class="quiz-start" id="quizStart">
+      <h2>퀴즈 설정</h2>
+      <p>난이도와 문제 수를 고르고 시작하세요. 틀려도 바로 해설이 나와요!</p>
+      <div class="lbl">난이도</div>
+      <div class="qopt-row" id="quizLevel">
+        <button class="qopt on" data-lv="all">전체</button>
+        <button class="qopt" data-lv="1">입문자</button>
+        <button class="qopt" data-lv="2">집관러</button>
+        <button class="qopt" data-lv="3">직관러</button>
+        <button class="qopt" data-lv="4">야친자</button>
+      </div>
+      <div class="lbl">문제 수</div>
+      <div class="qopt-row" id="quizCount">
+        <button class="qopt on" data-n="5">5문제</button>
+        <button class="qopt" data-n="10">10문제</button>
+        <button class="qopt" data-n="15">15문제</button>
+      </div>
+      <button class="go" id="quizGo">퀴즈 시작 ▶</button>
+    </div>
+
+    <!-- 진행 화면 -->
+    <div class="quiz-play" id="quizPlay" style="display:none">
+      <div class="quiz-bar">
+        <span class="prog" id="quizProg">1 / 5</span>
+        <span class="score" id="quizScore">점수 0</span>
+      </div>
+      <div class="quiz-track"><div class="fill" id="quizFill" style="width:0%"></div></div>
+      <div class="quiz-q">
+        <span class="qtype" id="quizType"></span>
+        <div class="qtext" id="quizText"></div>
+        <div class="answers" id="quizAnswers"></div>
+        <div class="explain" id="quizExplain"></div>
+      </div>
+      <button class="quiz-next" id="quizNext">다음 문제 ▶</button>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div class="quiz-result" id="quizResult" style="display:none">
+      <div class="emo" id="quizEmo">🎉</div>
+      <h2 id="quizGrade">잘했어요!</h2>
+      <div class="big" id="quizFinal">0 / 5</div>
+      <p id="quizMsg"></p>
+      <button id="quizRetry">한 번 더 ↻</button>
+      <button class="ghost" id="quizHome">설정으로</button>
+    </div>
+  </section>
+
+  <footer>
+    ⚾ 야구 룰 사전 · 카드를 눌러 자세히 · 파란 링크는 관련 룰로 이동<br>
+    <span style="opacity:.75">비공식 팬 제작 앱입니다. KBO 등 공식 기관과 무관하며, 룰 설명은 참고용으로 실제 규정과 다를 수 있어요.</span><br>
+    <span style="opacity:.6">© 2026 야구 룰 사전</span>
+  </footer>
+</div>
+
+<script src="rules-data.js"></script>
+<script>
+const RULES=window.RULES, SIT_LIST=window.SIT_LIST, SIT_ICON=window.SIT_ICON, POSITIONS=window.POSITIONS;
+const LV={
+  1:{name:"입문자",cls:"b1",hint:"⚾ 야구를 처음 봐요 — 경기의 큰 그림과 기본 용어부터."},
+  2:{name:"집관러",cls:"b2",hint:"📺 집에서 중계로 즐겨요 — 기록·작전·진행을 이해해요."},
+  3:{name:"직관러",cls:"b3",hint:"🏟️ 야구장에서 직접 봐요 — 판정과 순간 플레이를 읽어요."},
+  4:{name:"야친자",cls:"b4",hint:"🧠 야구에 진심이에요 — 심화 규칙과 예외까지."}
+};
+const LVHINT_ALL="숙련도·상황 필터로 원하는 룰만 골라보세요. 아래로 갈수록 어려워집니다.";
+let curLevel="all", curSit="all", curQuery="", sugIndex=-1;
+const $=id=>document.getElementById(id);
+const listEl=$("list"),countEl=$("count"),qEl=$("q"),sugEl=$("suggest"),clrEl=$("clr"),hintEl=$("levelhint");
+
+/* ---------- 뷰 전환 ---------- */
+document.querySelectorAll(".nav button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
+    const v=b.getAttribute("data-view");
+    document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
+    $("view-"+v).classList.add("on");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+
+/* ---------- 검색 유틸 ---------- */
+function norm(s){return (s||"").toLowerCase().replace(/[\s·\-\.]/g,"");}
+function matchScore(rule,qn){
+  if(!qn) return 0;
+  const t=norm(rule.title);
+  if(t.startsWith(qn)) return 100;
+  if(t.includes(qn)) return 80;
+  for(const a of rule.aliases){const an=norm(a);if(an.startsWith(qn))return 70;if(an.includes(qn))return 55;}
+  if(norm(rule.summary).includes(qn)) return 20;
+  return 0;
+}
+function hl(text,q){
+  if(!q) return text;
+  try{const re=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","ig");return text.replace(re,'<mark class="hl">$1</mark>');}
+  catch(e){return text;}
+}
+
+/* ---------- 상황 칩 ---------- */
+function buildChips(){
+  let html=`<div class="chip on" data-sit="all">전체 상황</div>`;
+  SIT_LIST.forEach(s=> html+=`<div class="chip" data-sit="${s}">${SIT_ICON[s]||""} ${s}</div>`);
+  $("chips").innerHTML=html;
+  $("chips").querySelectorAll(".chip").forEach(c=>{
+    c.addEventListener("click",()=>{curSit=c.getAttribute("data-sit");setChips();render();});
+  });
+}
+function setChips(){$("chips").querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c.getAttribute("data-sit")===curSit));}
+
+/* ---------- 리스트 렌더 ---------- */
+function render(){
+  const qn=norm(curQuery);
+  let rows=RULES.map(r=>({r,s:matchScore(r,qn)}));
+  if(qn) rows=rows.filter(x=>x.s>0);
+  if(curLevel!=="all") rows=rows.filter(x=>x.r.level==curLevel);
+  if(curSit!=="all") rows=rows.filter(x=>(x.r.sit||[]).includes(curSit));
+  rows.sort((a,b)=> qn ? (b.s-a.s||a.r.level-b.r.level) : (a.r.level-b.r.level));
+
+  if(rows.length===0){
+    listEl.innerHTML=`<div class="empty"><div class="big">🤔</div>조건에 맞는 룰이 없어요.<br>필터를 바꾸거나 다른 이름으로 검색해 보세요.</div>`;
+    countEl.textContent=""; return;
+  }
+  countEl.textContent = qn ? `🔍 "${curQuery}" 검색 결과 ${rows.length}개`
+    : `${curLevel==="all"?"전체":LV[curLevel].name}${curSit==="all"?"":" · "+curSit} 룰 ${rows.length}개`;
+
+  listEl.innerHTML=rows.map(({r})=>{
+    const lv=LV[r.level];
+    const body=r.body.map(p=>`<p>${p}</p>`).join("");
+    const tags=(r.sit||[]).map(s=>`<span class="cat">${SIT_ICON[s]||""} ${s}</span>`).join("");
+    return `<div class="card" id="card-${r.id}" data-id="${r.id}">
+      <div class="head" onclick="toggle('${r.id}')">
+        <span class="badge ${lv.cls}">${lv.name}</span>
+        <div class="htxt">
+          <div class="title">${hl(r.title,curQuery)}<span class="tags">${tags}</span></div>
+          <div class="summary">${hl(r.summary,curQuery)}</div>
+        </div>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="body">${body}</div>
+    </div>`;
+  }).join("");
+  listEl.querySelectorAll("a[data-jump]").forEach(a=>{
+    a.addEventListener("click",e=>{e.stopPropagation();jumpTo(a.getAttribute("data-jump"));});
+  });
+}
+function toggle(id){const c=$("card-"+id);if(c)c.classList.toggle("open");}
+function flashCard(c){c.classList.add("open");c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.remove("flash");void c.offsetWidth;c.classList.add("flash");}
+function jumpTo(id){
+  curQuery="";qEl.value="";clrEl.style.display="none";hideSuggest();
+  curLevel="all";curSit="all";setTabs();setChips();render();
+  const c=$("card-"+id); if(c) flashCard(c);
+}
+
+/* ---------- 검색어 추천 ---------- */
+function buildSuggest(){
+  const qn=norm(curQuery);
+  if(!qn){hideSuggest();return;}
+  const scored=RULES.map(r=>({r,s:matchScore(r,qn)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,7);
+  if(!scored.length){hideSuggest();return;}
+  sugEl.innerHTML=scored.map(({r})=>{
+    const hitAlias=r.aliases.find(a=>norm(a).includes(qn));
+    const aliasTxt=hitAlias?hl(hitAlias,curQuery):LV[r.level].name;
+    return `<div class="item" data-id="${r.id}"><span class="t">${hl(r.title,curQuery)}</span><span class="a">${aliasTxt}</span></div>`;
+  }).join("");
+  sugEl.classList.add("on");sugIndex=-1;
+  sugEl.querySelectorAll(".item").forEach(it=>it.addEventListener("click",()=>pickSuggest(it.getAttribute("data-id"))));
+}
+function hideSuggest(){sugEl.classList.remove("on");sugEl.innerHTML="";sugIndex=-1;}
+function pickSuggest(id){
+  hideSuggest();const r=RULES.find(x=>x.id===id);if(!r)return;
+  qEl.value=r.title;curQuery=r.title;clrEl.style.display="block";render();
+  const c=$("card-"+id); if(c) flashCard(c);
+}
+
+/* ---------- 이벤트 ---------- */
+qEl.addEventListener("input",()=>{curQuery=qEl.value.trim();clrEl.style.display=curQuery?"block":"none";buildSuggest();render();});
+qEl.addEventListener("keydown",e=>{
+  const items=sugEl.querySelectorAll(".item");
+  if(!sugEl.classList.contains("on")||!items.length){if(e.key==="Enter")hideSuggest();return;}
+  if(e.key==="ArrowDown"){e.preventDefault();sugIndex=Math.min(sugIndex+1,items.length-1);markSug(items);}
+  else if(e.key==="ArrowUp"){e.preventDefault();sugIndex=Math.max(sugIndex-1,0);markSug(items);}
+  else if(e.key==="Enter"){e.preventDefault();const t=sugIndex>=0?items[sugIndex]:items[0];if(t)pickSuggest(t.getAttribute("data-id"));}
+  else if(e.key==="Escape"){hideSuggest();}
+});
+function markSug(items){items.forEach((it,i)=>it.classList.toggle("active",i===sugIndex));if(sugIndex>=0)items[sugIndex].scrollIntoView({block:"nearest"});}
+clrEl.addEventListener("click",()=>{qEl.value="";curQuery="";clrEl.style.display="none";hideSuggest();qEl.focus();render();});
+document.addEventListener("click",e=>{if(!sugEl.contains(e.target)&&e.target!==qEl)hideSuggest();});
+$("tabs").querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{curLevel=t.getAttribute("data-lv");setTabs();render();}));
+function setTabs(){
+  $("tabs").querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.getAttribute("data-lv")===curLevel));
+  hintEl.textContent=curLevel==="all"?LVHINT_ALL:LV[curLevel].hint;
+}
+
+/* =====================================================
+   포지션 그림 (SVG)
+   ===================================================== */
+function buildField(){
+  const svg=$("field");
+  const POSCOLOR="#ff7a45";
+  let s=`
+  <defs>
+    <linearGradient id="gGrass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#37793f"/><stop offset="1" stop-color="#2f6b3a"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="400" height="400" rx="16" fill="#123018"/>
+  <!-- 페어 지역 -->
+  <path d="M200,338 L372,166 Q200,-30 28,166 Z" fill="url(#gGrass)"/>
+  <!-- 잔디 줄무늬 -->
+  <path d="M200,338 L286,252 Q200,150 114,252 Z" fill="#2b6236" opacity="0.5"/>
+  <!-- 파울선 -->
+  <line x1="200" y1="338" x2="372" y2="166" stroke="#e9eef2" stroke-width="2.5"/>
+  <line x1="200" y1="338" x2="28"  y2="166" stroke="#e9eef2" stroke-width="2.5"/>
+  <!-- 내야 흙 다이아몬드 -->
+  <path d="M200,332 L286,250 L200,168 L114,250 Z" fill="#b07b4a"/>
+  <path d="M200,318 L272,250 L200,182 L128,250 Z" fill="#2f6b3a"/>
+  <!-- 마운드 -->
+  <circle cx="200" cy="250" r="22" fill="#c98b52"/>
+  <rect x="196" y="247" width="8" height="4" fill="#fff"/>
+  <!-- 베이스 -->
+  <rect x="281" y="245" width="11" height="11" fill="#fff" transform="rotate(45 286 250)"/>
+  <rect x="195" y="163" width="11" height="11" fill="#fff" transform="rotate(45 200 168)"/>
+  <rect x="109" y="245" width="11" height="11" fill="#fff" transform="rotate(45 114 250)"/>
+  <!-- 홈플레이트 -->
+  <path d="M194,332 h12 v6 l-6,6 l-6,-6 z" fill="#fff"/>
+  <!-- (베이스 라벨은 포지션 마커 위에 덧그림) -->`;
+  // 포지션 점
+  POSITIONS.forEach(p=>{
+    s+=`<g class="pos-dot" data-key="${p.key}" onclick="selectPos('${p.key}')">
+      <circle cx="${p.x}" cy="${p.y}" r="15" fill="${POSCOLOR}" stroke="rgba(0,0,0,.35)" stroke-width="1.5"/>
+      <text x="${p.x}" y="${p.y+5}" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">${p.num}</text>
+    </g>`;
+  });
+  // 베이스 라벨 — 마커 위에 덧그리고 어두운 외곽선(halo)으로 안 가려지게
+  const baseLbl='paint-order="stroke" stroke="#0b1016" stroke-width="3.5" stroke-linejoin="round" fill="#eaf3ec" font-size="12" font-weight="800"';
+  s+=`
+    <text x="316" y="236" text-anchor="middle" ${baseLbl}>1루</text>
+    <text x="200" y="150" text-anchor="middle" ${baseLbl}>2루</text>
+    <text x="84"  y="236" text-anchor="middle" ${baseLbl}>3루</text>
+    <text x="240" y="360" text-anchor="start"  ${baseLbl}>홈</text>`;
+  svg.innerHTML=s;
+
+  // 범례 버튼
+  $("posLegend").innerHTML=POSITIONS.map(p=>
+    `<button data-key="${p.key}" onclick="selectPos('${p.key}')"><span class="n">${p.num}</span>${p.name}</button>`).join("");
+  selectPos("P");
+}
+function selectPos(key){
+  const p=POSITIONS.find(x=>x.key===key); if(!p)return;
+  document.querySelectorAll(".pos-dot").forEach(d=>d.classList.toggle("sel",d.getAttribute("data-key")===key));
+  document.querySelectorAll(".pos-legend button").forEach(b=>b.classList.toggle("sel",b.getAttribute("data-key")===key));
+  $("posDetail").innerHTML=`<h3>${p.num}. ${p.name} <span style="font-size:13px;color:var(--sub)">(${p.key})</span></h3>
+    <div class="en">${p.en}</div><p>${p.desc}</p>`;
+}
+
+/* =====================================================
+   보는 법 — 중계화면 SVG
+   ===================================================== */
+function buildBroadcast(){
+  const svg=$("svgBroadcast");
+  const nb=(x,y,n)=>`<circle cx="${x}" cy="${y}" r="9" fill="#ff7a45" stroke="#0b1016" stroke-width="1.5"/><text x="${x}" y="${y+3.5}" text-anchor="middle" fill="#fff" font-size="11" font-weight="800">${n}</text>`;
+  svg.innerHTML=`
+  <rect x="0" y="0" width="640" height="300" fill="#0d1622"/>
+  <!-- 배경: 그라운드 느낌 -->
+  <rect x="0" y="170" width="640" height="130" fill="#20512c"/>
+  <rect x="0" y="150" width="640" height="24" fill="#8a5a34"/>
+  <text x="626" y="245" text-anchor="end" fill="#4a6f8a" font-size="12">↑ 실제 경기 영상 위에 이 정보창이 겹쳐 표시돼요</text>
+
+  <!-- 스코어버그 박스 -->
+  <g font-family="'Segoe UI',sans-serif">
+    <rect x="20" y="20" width="330" height="66" rx="9" fill="#0b1016" stroke="#2a3542"/>
+    <!-- 원정팀(어웨이) -->
+    <rect x="20" y="20" width="12" height="33" fill="#38bdf8"/>
+    <text x="42" y="42" fill="#e8eef4" font-size="15" font-weight="800">어웨이</text>
+    <text x="152" y="42" fill="#ffd166" font-size="18" font-weight="800" text-anchor="end">3</text>
+    <!-- 홈팀 -->
+    <rect x="20" y="53" width="12" height="33" fill="#fb7185"/>
+    <text x="42" y="75" fill="#e8eef4" font-size="15" font-weight="800">홈</text>
+    <text x="152" y="75" fill="#ffd166" font-size="18" font-weight="800" text-anchor="end">4</text>
+    <!-- 이닝 : 7회 초 (▲=초) -->
+    <line x1="172" y1="28" x2="172" y2="78" stroke="#2a3542"/>
+    <text x="205" y="49" fill="#e8eef4" font-size="16" font-weight="800" text-anchor="middle">7</text>
+    <path d="M198,58 l7,-9 l7,9 z" fill="#ff7a45"/>
+    <text x="205" y="76" fill="#93a3b4" font-size="10" text-anchor="middle">초</text>
+
+    <!-- 주자 다이아몬드 -->
+    <g transform="translate(250,52)">
+      <rect x="10" y="-10" width="13" height="13" fill="#ffd166" transform="rotate(45 16 -4)"/>  <!-- 1루 ON -->
+      <rect x="-6" y="-26" width="13" height="13" fill="#33404d" transform="rotate(45 0 -20)"/> <!-- 2루 OFF -->
+      <rect x="-22" y="-10" width="13" height="13" fill="#ffd166" transform="rotate(45 -16 -4)"/><!-- 3루 ON -->
+    </g>
+
+    <!-- 카운트 표시 -->
+    <g transform="translate(300,30)">
+      <text x="0" y="6" fill="#93a3b4" font-size="10" font-weight="700">B</text>
+      <circle cx="14" cy="2" r="4" fill="#38bdf8"/><circle cx="26" cy="2" r="4" fill="#38bdf8"/><circle cx="38" cy="2" r="4" fill="#33404d"/>
+      <text x="0" y="22" fill="#93a3b4" font-size="10" font-weight="700">S</text>
+      <circle cx="14" cy="18" r="4" fill="#ffd166"/><circle cx="26" cy="18" r="4" fill="#33404d"/><circle cx="38" cy="18" r="4" fill="#33404d"/>
+      <text x="0" y="38" fill="#93a3b4" font-size="10" font-weight="700">O</text>
+      <circle cx="14" cy="34" r="4" fill="#fb7185"/><circle cx="26" cy="34" r="4" fill="#33404d"/><circle cx="38" cy="34" r="4" fill="#33404d"/>
+    </g>
+
+    <!-- 구속 -->
+    <rect x="20" y="96" width="150" height="30" rx="7" fill="#0b1016" stroke="#2a3542"/>
+    <text x="30" y="116" fill="#ff7a45" font-size="15" font-weight="800">147</text>
+    <text x="72" y="116" fill="#93a3b4" font-size="11">km/h · 직구</text>
+    <!-- 타자 정보 -->
+    <rect x="180" y="96" width="170" height="30" rx="7" fill="#0b1016" stroke="#2a3542"/>
+    <text x="192" y="116" fill="#e8eef4" font-size="13" font-weight="700">타자 ○○○</text>
+    <text x="342" y="116" fill="#93a3b4" font-size="11" text-anchor="end">타율 .281</text>
+  </g>
+
+  <!-- 번호 배지 (아래 설명의 번호와 연결) -->
+  ${nb(11,52,'1')}
+  ${nb(205,10,'2')}
+  ${nb(250,10,'3')}
+  ${nb(325,10,'4')}
+  ${nb(11,111,'5')}
+  ${nb(362,111,'6')}
+  `;
+  $("legendBroadcast").innerHTML=[
+    ["#38bdf8","① 팀·점수","위가 <b>어웨이(원정)</b>, 아래가 <b>홈</b>. 옆 숫자가 현재 점수(3:4)."],
+    ["#ff7a45","② 이닝","숫자는 몇 회인지, <b>▲=초(원정 공격)</b>·<b>▼=말(홈 공격)</b>. 지금은 7회 초."],
+    ["#ffd166","③ 주자","작은 다이아몬드에서 <b>색이 켜진 베이스</b>에 주자가 있어요(지금 1·3루)."],
+    ["#a78bfa","④ B·S·O","<b>B</b>=볼, <b>S</b>=스트라이크, <b>O</b>=아웃 개수(지금 볼2·스1·아웃1)."],
+    ["#ff7a45","⑤ 구속","방금 던진 공의 <b>속도(km/h)와 구종</b>."],
+    ["#e8eef4","⑥ 타자","현재 타석 선수와 <b>시즌 타율</b>."]
+  ].map(r=>`<div class="row"><span class="key" style="background:${r[0]}">${r[1]}</span><span class="txt">${r[2]}</span></div>`).join("");
+}
+
+/* =====================================================
+   보는 법 — 전광판(라인스코어) SVG
+   ===================================================== */
+function buildScoreboard(){
+  const svg=$("svgScoreboard");
+  const innings=[0,1,2,3,4,5,6,7,8,9]; // 0 = 팀명 칸
+  const away=["어웨이","0","1","0","0","2","0","0","0","0"];
+  const home=["홈",    "0","0","2","0","0","1","0","1","X"];
+  const awayRHEB=["3","8","0","2"], homeRHEB=["4","9","1","3"];
+  const x0=20, y0=60, cw=44, rh=42;
+
+  let s=`<rect x="0" y="0" width="640" height="168" fill="#0b1016"/>`;
+  // 헤더 (이닝 번호 + R H E)
+  s+=`<rect x="${x0}" y="${y0-30}" width="${ww()}" height="28" fill="#16202b"/>`;
+  function ww(){return cw*10 + 4*cw;}
+  for(let i=1;i<=9;i++){
+    s+=`<text x="${x0+cw*(i)+cw/2}" y="${y0-11}" fill="#93a3b4" font-size="14" font-weight="700" text-anchor="middle">${i}</text>`;
+  }
+  const rheLabels=["R","H","E","B"], rheColors=["#ff7a45","#38bdf8","#fb7185","#a78bfa"];
+  rheLabels.forEach((L,i)=>{
+    const cx=x0+cw*10 + cw*i + cw/2;
+    s+=`<text x="${cx}" y="${y0-11}" fill="${rheColors[i]}" font-size="15" font-weight="800" text-anchor="middle">${L}</text>`;
+  });
+
+  function drawRow(arr,rhe,ry,color){
+    // 팀명 칸
+    s+=`<rect x="${x0}" y="${ry}" width="${cw}" height="${rh}" fill="#16202b"/>`;
+    s+=`<rect x="${x0}" y="${ry+8}" width="6" height="${rh-16}" fill="${color}"/>`;
+    s+=`<text x="${x0+cw/2+3}" y="${ry+rh/2+5}" fill="#e8eef4" font-size="12" font-weight="800" text-anchor="middle">${arr[0]}</text>`;
+    for(let i=1;i<=9;i++){
+      const cx=x0+cw*i;
+      s+=`<rect x="${cx}" y="${ry}" width="${cw}" height="${rh}" fill="#0d1622" stroke="#1e2731"/>`;
+      const val=arr[i]||"";
+      const col= val==="X" ? "#5a6b7a" : "#e8eef4";
+      s+=`<text x="${cx+cw/2}" y="${ry+rh/2+6}" fill="${col}" font-size="16" font-weight="700" text-anchor="middle">${val}</text>`;
+    }
+    // R H E B
+    for(let i=0;i<4;i++){
+      const cx=x0+cw*10 + cw*i;
+      s+=`<rect x="${cx}" y="${ry}" width="${cw}" height="${rh}" fill="#111c27" stroke="#243141"/>`;
+      const big = i===0;
+      s+=`<text x="${cx+cw/2}" y="${ry+rh/2+6}" fill="${big?'#ffd166':'#cbd6e2'}" font-size="${big?18:15}" font-weight="800" text-anchor="middle">${rhe[i]}</text>`;
+    }
+  }
+  drawRow(away,awayRHEB,y0,"#38bdf8");
+  drawRow(home,homeRHEB,y0+rh,"#fb7185");
+
+  // 상단 안내 (하단 콜아웃은 겹침 방지를 위해 제거 — 설명은 아래 범례로)
+  s+=`<text x="${x0}" y="24" font-family="'Segoe UI',sans-serif" font-size="12" font-weight="700" fill="#93a3b4">▼ 가로 = 이닝별 득점 · 세로 = 원정(위)/홈(아래) · 오른쪽 R·H·E·B</text>`;
+  svg.innerHTML=s;
+
+  $("legendScoreboard").innerHTML=[
+    ["#93a3b4","가로줄","각 칸은 <b>1~9회에 낸 점수</b>. 왼쪽부터 1회, 2회… 순서예요."],
+    ["#93a3b4","세로줄","위가 <b>원정팀</b>, 아래가 <b>홈팀</b>."],
+    ["#ff7a45","R","<b>Runs=총 득점</b>. 이 숫자가 큰 팀이 이기고 있어요."],
+    ["#38bdf8","H","<b>Hits=안타 수</b>. 많이 쳤는지 보여줘요."],
+    ["#fb7185","E","<b>Errors=실책 수</b>. 수비 실수 횟수."],
+    ["#a78bfa","B","<b>사사구 수</b>(볼넷+몸에 맞는 공). 4구+사구를 합친 출루 횟수."],
+    ["#5a6b7a","X","홈팀이 앞서서 <b>9회말을 치르지 않음</b>(칠 필요 없어서)."]
+  ].map(r=>`<div class="row"><span class="key" style="background:${r[0]}">${r[1]}</span><span class="txt">${r[2]}</span></div>`).join("");
+}
+
+/* =====================================================
+   퀴즈 모드
+   ===================================================== */
+const LVBADGE={1:"b1",2:"b2",3:"b3",4:"b4"};
+const QUIZ=window.QUIZ||[];
+let quizLv="all", quizN=5, quizList=[], quizIdx=0, quizScore=0, quizLocked=false;
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pick(arr,n){return shuffle(arr.slice()).slice(0,n);}
+
+// 옵션 버튼 토글
+$("quizLevel").querySelectorAll(".qopt").forEach(b=>b.addEventListener("click",()=>{
+  quizLv=b.getAttribute("data-lv");
+  $("quizLevel").querySelectorAll(".qopt").forEach(x=>x.classList.toggle("on",x===b));
+}));
+$("quizCount").querySelectorAll(".qopt").forEach(b=>b.addEventListener("click",()=>{
+  quizN=+b.getAttribute("data-n");
+  $("quizCount").querySelectorAll(".qopt").forEach(x=>x.classList.toggle("on",x===b));
+}));
+$("quizGo").addEventListener("click",startQuiz);
+$("quizNext").addEventListener("click",nextQuestion);
+$("quizRetry").addEventListener("click",startQuiz);
+$("quizHome").addEventListener("click",()=>showQuizScreen("start"));
+
+function showQuizScreen(which){
+  $("quizStart").style.display  = which==="start" ?"block":"none";
+  $("quizPlay").style.display   = which==="play"  ?"block":"none";
+  $("quizResult").style.display = which==="result"?"block":"none";
+}
+
+function startQuiz(){
+  const pool = QUIZ.filter(x=> quizLv==="all" || x.lv==+quizLv);
+  const n = Math.min(quizN, pool.length);
+  quizList = pick(pool, n);
+  quizIdx=0; quizScore=0;
+  showQuizScreen("play");
+  renderQuestion();
+}
+
+function renderQuestion(){
+  quizLocked=false;
+  const item=quizList[quizIdx];
+  const total=quizList.length;
+  $("quizProg").textContent=`${quizIdx+1} / ${total}`;
+  $("quizScore").textContent=`점수 ${quizScore}`;
+  $("quizFill").style.width=`${(quizIdx/total)*100}%`;
+  $("quizExplain").classList.remove("on");
+  $("quizNext").classList.remove("on");
+  $("quizNext").textContent = (quizIdx===total-1)?"결과 보기 ▶":"다음 문제 ▶";
+
+  const lvTag = `<span class="lv ${LVBADGE[item.lv]}">${LV[item.lv].name}</span>`;
+  $("quizType").textContent="정답을 고르세요";
+  $("quizText").innerHTML=`${item.q} ${lvTag}`;
+
+  // 보기: 정답 + 헷갈리는 오답 3개를 섞음
+  const opts=shuffle([{t:item.correct,c:true}, ...item.wrong.map(w=>({t:w,c:false}))]);
+  $("quizAnswers").innerHTML=opts.map(o=>
+    `<button class="answer" data-correct="${o.c}">${o.t}</button>`).join("");
+  $("quizAnswers").querySelectorAll(".answer").forEach(btn=>
+    btn.addEventListener("click",()=>chooseAnswer(btn, item)));
+}
+
+function chooseAnswer(btn, item){
+  if(quizLocked) return;
+  quizLocked=true;
+  const correct = btn.getAttribute("data-correct")==="true";
+  $("quizAnswers").querySelectorAll(".answer").forEach(b=>{
+    b.disabled=true;
+    if(b.getAttribute("data-correct")==="true"){ b.classList.add("correct"); b.insertAdjacentHTML("beforeend",' <span class="mk">✓</span>'); }
+    else if(b===btn){ b.classList.add("wrong"); b.insertAdjacentHTML("beforeend",' <span class="mk">✗</span>'); }
+  });
+  if(correct) quizScore++;
+  $("quizScore").textContent=`점수 ${quizScore}`;
+  const ex=$("quizExplain");
+  ex.innerHTML=`${correct?"✅ <b>정답!</b> ":`❌ <b>땡!</b> 정답은 <b>${item.correct}</b>. `}${item.explain}`;
+  ex.classList.add("on");
+  $("quizNext").classList.add("on");
+}
+
+function nextQuestion(){
+  quizIdx++;
+  if(quizIdx>=quizList.length){ showResult(); return; }
+  renderQuestion();
+}
+
+function showResult(){
+  showQuizScreen("result");
+  const total=quizList.length, pct=total?Math.round(quizScore/total*100):0;
+  $("quizFinal").textContent=`${quizScore} / ${total}`;
+  let emo,grade,msg;
+  if(pct===100){emo="🏆";grade="야친자 인증!";msg="완벽해요. 심판 봐도 되겠는데요?";}
+  else if(pct>=80){emo="🎉";grade="직관러 급!";msg="아주 훌륭해요. 거의 다 아네요.";}
+  else if(pct>=50){emo="👍";grade="집관러 성장 중!";msg="반 이상 맞혔어요. 조금만 더!";}
+  else {emo="🌱";grade="이제 입문!";msg="틀린 룰은 ‘룰 사전’에서 다시 봐요.";}
+  $("quizEmo").textContent=emo; $("quizGrade").textContent=grade; $("quizMsg").textContent=`${msg} (정답률 ${pct}%)`;
+  $("quizFill").style.width="100%";
+}
+
+/* ---------- init ---------- */
+buildChips(); setTabs(); setChips(); render();
+buildField(); buildBroadcast(); buildScoreboard();
+showQuizScreen("start");
+
+/* PWA: 서비스워커 등록 (HTTPS/GitHub Pages에서 오프라인 지원) */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
