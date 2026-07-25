@@ -1248,14 +1248,12 @@ async function drawShareCard(o){
       x.fillStyle=fill; x.fillText(t,cx,y);
     };
 
-    txt("⚾ 야구 룰 사전", W/2, 150, 46, red, 800);
-    txt(o.sub, W/2, 214, 34, ink, 700);
-    // 점수 — 화면의 주인공
-    txt(o.big, W/2, 600, 210, red, 900);
-    txt(o.grade, W/2, 706, 58, ink, 800);
-    txt(o.detail, W/2, 782, 36, "#44525f", 700);
-    // 꼬리말
-    txt(SHARE_URL.replace(/^https?:\/\//,""), W/2, 960, 28, ink, 700);
+    txt("⚾ 야구 룰 사전", W/2, 170, 46, red, 800);
+    txt(o.sub, W/2, 234, 34, ink, 700);
+    // 점수 — 화면의 주인공 (주소는 넣지 않음)
+    txt(o.big, W/2, 640, 210, red, 900);
+    txt(o.grade, W/2, 748, 58, ink, 800);
+    txt(o.detail, W/2, 826, 36, "#44525f", 700);
   }
 
   await loadShareBg();
