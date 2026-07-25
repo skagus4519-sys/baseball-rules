@@ -33,6 +33,9 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
+  /* 한글은 기본값이면 단어 중간에서 잘린다(예: "어/필했다").
+     keep-all 로 띄어쓰기 단위로만 줄바꿈하고, 너무 긴 낱말만 예외로 쪼갠다. */
+  body{word-break:keep-all;overflow-wrap:break-word;}
   body{font-family:'Pretendard','Segoe UI',-apple-system,'Malgun Gothic',sans-serif;
     background:radial-gradient(1200px 600px at 50% -200px,#1a2530,#0f1419 60%);
     color:var(--txt);line-height:1.65;min-height:100vh;padding-bottom:60px}
@@ -178,7 +181,9 @@
   .quiz-q .qtype{display:inline-block;font-size:11px;font-weight:800;color:var(--accent2);
     background:rgba(255,209,102,.12);padding:3px 9px;border-radius:6px;margin-bottom:12px}
   .quiz-q .qtext{font-size:17px;font-weight:700;line-height:1.5}
-  .quiz-q .qtext .lv{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle}
+  .quiz-q .qhead{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:12px}
+  .quiz-q .qhead .qtype{margin-bottom:0}
+  .quiz-q .lv{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
   .answers{display:flex;flex-direction:column;gap:10px;margin-top:6px}
   .answer{text-align:left;padding:14px 15px;border-radius:12px;border:1.5px solid var(--line);
     background:var(--panel);color:var(--txt);cursor:pointer;font-size:14.5px;line-height:1.5;transition:.15s;width:100%}
@@ -326,7 +331,7 @@
   .pos-legend button.sel .n{ background:var(--accent); color:#fff; }
 
   /* (6) 퀴즈 문제 옆 레벨 태그: 틴트 배경 + 테두리로 또렷하게 */
-  .quiz-q .qtext .lv{ background:#fff; border:2px solid currentColor; }
+  .quiz-q .lv{ background:#fff; border:2px solid currentColor; }
 
   /* (7) 그라운드 배경 위에 바로 놓이는 글씨: 색 진하게 + 크림 후광 */
   header p, .filt-label, .levelhint, .count, .section-sub, .section-title, footer{
@@ -581,7 +586,7 @@
       </div>
       <div class="quiz-track"><div class="fill" id="quizFill" style="width:0%"></div></div>
       <div class="quiz-q">
-        <span class="qtype" id="quizType"></span>
+        <div class="qhead"><span class="qtype" id="quizType"></span><span class="lv" id="quizLv"></span></div>
         <div class="qtext" id="quizText"></div>
         <div class="answers" id="quizAnswers"></div>
         <div class="explain" id="quizExplain"></div>
@@ -1059,9 +1064,10 @@ function renderQuestion(){
   $("quizNext").classList.remove("on");
   $("quizNext").textContent = (quizIdx===total-1)?"결과 보기 ▶":"다음 문제 ▶";
 
-  const lvTag = `<span class="lv ${LVBADGE[item.lv]}">${LV[item.lv].name}</span>`;
   $("quizType").textContent="정답을 고르세요";
-  $("quizText").innerHTML=`${item.q} ${lvTag}`;
+  $("quizLv").className="lv "+LVBADGE[item.lv];
+  $("quizLv").textContent=LV[item.lv].name;
+  $("quizText").innerHTML=item.q;
 
   // 보기: 정답 + 헷갈리는 오답 3개를 섞음
   const opts=shuffle([{t:item.correct,c:true}, ...item.wrong.map(w=>({t:w,c:false}))]);
