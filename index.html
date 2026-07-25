@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>야구 룰 사전 ⚾ | 입문자부터 야친자까지</title>
 <meta name="description" content="야구 룰과 용어를 입문자부터 야친자까지 단계별로 설명하고 퀴즈로 익히는 비공식 야구 룰 사전." />
-<meta name="theme-color" content="#fbf4e6" />
+<meta name="theme-color" content="#dbe9f7" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="favicon-64.png" sizes="64x64" />
 <!-- 웹앱(홈 화면 설치) — iOS Safari용 -->
@@ -205,12 +205,13 @@
   body{ background:#fbf4e6; color:var(--txt); }
   img.sprite{ image-rendering:pixelated; image-rendering:crisp-edges; }
 
-  /* 배경: 픽셀 야구장 그라운드 (JS로 그리드 렌더) */
-  #bgField{ position:fixed; inset:0; width:100%; height:100%; z-index:-2; opacity:.85;
-    pointer-events:none; image-rendering:pixelated; }
-  /* 그라운드 위 글씨가 뜨지 않도록 아주 옅은 크림 베일 */
+  /* 배경: 픽셀 야구장 전경 이미지 */
+  #bgField{ position:fixed; inset:0; z-index:-2; pointer-events:none;
+    background:#dbe9f7 url("bg-stadium.jpg") center center / cover no-repeat;
+    image-rendering:pixelated; }
+  /* 배경 위 글씨가 뜨지 않도록 아주 옅은 크림 베일 */
   #bgVeil{ position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:linear-gradient(180deg,rgba(251,244,230,.55),rgba(251,244,230,.28) 22%,rgba(251,244,230,.28)); }
+    background:linear-gradient(180deg,rgba(251,244,230,.34),rgba(251,244,230,.14) 20%,rgba(251,244,230,.30)); }
 
   /* 헤더 */
   header .ball-sprite{ width:82px; height:82px; filter:drop-shadow(3px 3px 0 rgba(27,42,56,.35)); }
@@ -382,6 +383,10 @@
     .tabs{ gap:7px; }
     .tab{ padding:8px 11px; font-size:12.5px; gap:5px; }
     .tab .dot{ width:8px; height:8px; }
+    /* 숙련도: 첫 줄 '전체', 둘째 줄에 레벨 4개를 균등 배치 */
+    #tabs .tab[data-lv="all"]{ flex:0 0 100%; justify-content:center; }
+    #tabs .tab:not([data-lv="all"]){ flex:1 1 0; min-width:0; justify-content:center;
+      padding:8px 4px; font-size:12px; gap:4px; }
     .chip{ padding:7px 10px; font-size:12.5px; }
     .levelhint{ padding:6px 4px 0; font-size:12px; }
     .count{ padding:9px 4px; }
@@ -392,7 +397,7 @@
 </style>
 </head>
 <body>
-<svg id="bgField" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+<div id="bgField" aria-hidden="true"></div>
 <div id="bgVeil" aria-hidden="true"></div>
 <div class="wrap">
   <header>
@@ -402,15 +407,14 @@
     <div class="sprite-band">
       <img class="sprite" src="sprite-bat.png" alt="배트" width="40" height="40" />
       <img class="sprite" src="sprite-glove.png" alt="글러브" width="40" height="40" />
-      <img class="sprite" src="sprite-jersey.png" alt="유니폼" width="40" height="40" />
-      <img class="sprite" src="sprite-cap.png" alt="모자" width="40" height="40" />
+      <img class="sprite" src="sprite-mask.png" alt="포수 마스크" width="40" height="40" />
     </div>
   </header>
 
   <div class="nav">
     <button data-view="rules" class="on"><img class="sprite" src="sprite-baseball.png" alt="" width="22" height="22" />룰 사전</button>
     <button data-view="pos"><img class="sprite" src="sprite-glove.png" alt="" width="22" height="22" />포지션</button>
-    <button data-view="guide"><img class="sprite" src="sprite-cap.png" alt="" width="22" height="22" />보는 법</button>
+    <button data-view="guide"><img class="sprite" src="sprite-mask.png" alt="" width="22" height="22" />보는 법</button>
     <button data-view="quiz"><img class="sprite" src="sprite-bat.png" alt="" width="22" height="22" />퀴즈</button>
   </div>
 
@@ -993,79 +997,9 @@ function showResult(){
   $("quizFill").style.width="100%";
 }
 
-/* =====================================================
-   배경: 픽셀 야구장 그라운드
-   40×60 칸 그리드를 좌표 계산으로 칠한 도트 그림.
-   홈플레이트가 아래 중앙(20,50), 외야가 위쪽.
-   ===================================================== */
-function buildGround(){
-  const svg=document.getElementById('bgField'); if(!svg) return;
-  const COLS=40, ROWS=60, U=10;          // 칸 크기 10 → viewBox 400×600
-  const HOME_C=20, HOME_R=50;            // 홈플레이트 위치(칸)
-  const C={
-    stand:'#e7dfcc', dot:'#d6cbb1',      // 관중석 · 관중 도트
-    wallTop:'#8ea87e', wall:'#a8bd97',   // 외야 담장(윗선/면)
-    track:'#e5cfa8',                     // 워닝트랙 · 파울지역 흙
-    gA:'#d9e8c8', gB:'#cadfb4',          // 잔디 예초 줄무늬 2색
-    dirt:'#ecd6ae', mound:'#e0c599',     // 내야 흙 · 마운드
-    line:'#fffdf5'                       // 라인 · 베이스
-  };
-
-  // 칸 하나의 색 결정
-  function px(c,r){
-    const dx=(c+0.5)-HOME_C, dy=HOME_R-(r+0.5);   // 홈 기준 좌우/앞뒤 거리
-    const ax=Math.abs(dx);
-    const dist=Math.sqrt(dx*dx+dy*dy);            // 홈에서의 거리(담장 곡선용)
-    const dia=ax+dy;                              // 다이아몬드 거리(내야·예초무늬용)
-    const foul=ax-dy;                             // 0보다 크면 파울지역
-
-    // 담장 밖 · 홈 뒤 · 파울지역 바깥 = 관중석
-    if(dy<-6.5 || foul>8 || dist>43) return ((c*5+r*3)%13===0)?C.dot:C.stand;
-    // 외야 담장 + 워닝트랙
-    if(dist>40.5) return C.wallTop;
-    if(dist>37.5) return C.wall;
-    if(dist>34)   return C.track;
-    // 홈플레이트 주변 흙
-    if(dist<5.5)  return dist<1.4?C.line:C.dirt;
-
-    // 내야 다이아몬드
-    if(dia<=23 && dy>-1){
-      const md=Math.sqrt(dx*dx+(dy-10)*(dy-10));                 // 마운드까지 거리
-      if(md<1.0) return C.line;                                  // 투수판
-      if(md<3.4) return C.mound;                                 // 마운드
-      if(Math.abs(dx-10)<1 && Math.abs(dy-10)<1) return C.line;  // 1루
-      if(Math.abs(dx+10)<1 && Math.abs(dy-10)<1) return C.line;  // 3루
-      if(ax<1 && Math.abs(dy-20)<1)              return C.line;  // 2루
-      if(Math.abs(foul)<0.9 && dy>=0 && dia<=21) return C.line;  // 내야 파울라인
-      if(dia<=17) return (Math.floor(dia/4)%2)?C.gB:C.gA;        // 내야 잔디
-      return C.dirt;                                             // 베이스패스 흙
-    }
-
-    // 파울라인 · 파울지역 흙
-    if(foul>-0.2 && foul<1.1) return C.line;
-    if(foul>=1.1) return C.track;
-    // 외야 잔디 — 다이아몬드 모양 예초 줄무늬
-    return (Math.floor(dia/4)%2)?C.gB:C.gA;
-  }
-
-  // 같은 색이 이어지는 칸은 하나의 rect로 묶어 출력(가로 런렝스)
-  let s=`<rect width="${COLS*U}" height="${ROWS*U}" fill="${C.gA}"/>`;
-  for(let r=0;r<ROWS;r++){
-    const row=[]; for(let c=0;c<COLS;c++) row.push(px(c,r));
-    let c=0;
-    while(c<COLS){
-      let n=1; while(c+n<COLS && row[c+n]===row[c]) n++;
-      s+=`<rect x="${c*U}" y="${r*U}" width="${n*U}" height="${U}" fill="${row[c]}"/>`;
-      c+=n;
-    }
-  }
-  svg.innerHTML=s;
-}
-
 /* ---------- init ---------- */
 buildChips(); setTabs(); setChips(); render();
 buildField(); buildBroadcast(); buildScoreboard();
-buildGround();
 showQuizScreen("start");
 showView(curView(), false);   // 앱 바로가기(#quiz 등)로 열었을 때 해당 화면부터
 
