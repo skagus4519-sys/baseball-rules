@@ -4,13 +4,16 @@
    - 그 외 같은 출처 GET: 캐시 즉시 응답 + 뒤에서 갱신(stale-while-revalidate)
    → 파일을 고쳐 배포하면 다음 방문 때 새 버전을 받아 앱이 '새 버전' 알림을 띄웁니다.
      CACHE 버전은 캐시를 통째로 비우고 싶을 때만 올리면 됩니다. */
-const CACHE = 'baseball-rules-v4';
+const CACHE = 'baseball-rules-v5';
 const ASSETS = [
   './',
   './index.html',
   './rules-data.js',
+  './quiz-more.js',
+  './sim.js',
   './manifest.webmanifest',
   './bg-stadium.jpg',
+  './og-image.png',
   './favicon-64.png',
   './apple-touch-icon-180.png',
   './icon-192.png',

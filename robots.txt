@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://skagus4519-sys.github.io/baseball-rules/sitemap.xml
