@@ -1206,34 +1206,67 @@ document.querySelectorAll("#playMode .mode").forEach(b=>{
 const SHARE_URL = location.origin + location.pathname.replace(/index\.html$/,"");
 let lastGrade={emo:"🎉",grade:"잘했어요!"};
 
-function drawShareCard(o){
+let _bgImg;
+function loadShareBg(){
+  if(_bgImg!==undefined) return Promise.resolve(_bgImg);
+  return new Promise(res=>{
+    const im=new Image();
+    im.onload =()=>{ _bgImg=im;   res(im); };
+    im.onerror=()=>{ _bgImg=null; res(null); };
+    im.src="bg-stadium.jpg";
+  });
+}
+
+/* 앱의 픽셀 스타디움 배경 위에 점수만 크게 — 단순하게 */
+async function drawShareCard(o){
   const W=1080, c=document.createElement("canvas"); c.width=W; c.height=W;
   const x=c.getContext("2d");
   const FONT=(s,w)=>`${w||800} ${s}px 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',sans-serif`;
-  const ink="#1b2a38", red="#cf2b2b";
-  // 배경 + 픽셀 프레임
-  x.fillStyle="#fbf4e6"; x.fillRect(0,0,W,W);
-  x.fillStyle="#e7f0dc"; x.fillRect(0,0,W,300);
-  x.fillStyle=ink; x.fillRect(48,48,W-96,W-96);
-  x.fillStyle="#fff"; x.fillRect(62,62,W-124,W-124);
-  x.textAlign="center";
-  // 머리말
-  x.fillStyle=red; x.font=FONT(40); x.fillText("⚾ 야구 룰 사전", W/2, 168);
-  x.fillStyle=ink; x.font=FONT(30,700); x.fillText(o.sub, W/2, 224);
-  // 큰 이모지 + 등급
-  x.font=FONT(190,400); x.fillText(o.emo, W/2, 430);
-  x.fillStyle=ink; x.font=FONT(62); x.fillText(o.grade, W/2, 540);
-  // 점수 박스
-  x.fillStyle=ink; x.fillRect(210,596,W-420,158);
-  x.fillStyle="#fff6e6"; x.fillRect(222,608,W-444,134);
-  x.fillStyle=red; x.font=FONT(96); x.fillText(o.big, W/2, 712);
-  // 부가 정보
-  x.fillStyle="#5b6a78"; x.font=FONT(34,700); x.fillText(o.detail, W/2, 826);
-  // 꼬리말
-  x.fillStyle=ink; x.font=FONT(30,800); x.fillText("나도 해보기 →", W/2, 918);
-  x.fillStyle="#5b6a78"; x.font=FONT(26,700);
-  x.fillText(SHARE_URL.replace(/^https?:\/\//,""), W/2, 962);
-  return new Promise(res=>c.toBlob(res,"image/png"));
+  const ink="#1b2a38", red="#cf2b2b", cream="#fbf4e6";
+
+  function paint(useImg){
+    x.clearRect(0,0,W,W);
+    if(useImg && _bgImg){
+      const s=Math.max(W/_bgImg.width, W/_bgImg.height);
+      const w=_bgImg.width*s, h=_bgImg.height*s;
+      x.imageSmoothingEnabled=false;                 // 픽셀 그대로
+      x.drawImage(_bgImg,(W-w)/2,(W-h)/2,w,h);
+    }else{
+      x.fillStyle="#dbe9f7"; x.fillRect(0,0,W,W);
+      x.fillStyle="#d9e8c8"; x.fillRect(0,W*0.42,W,W*0.58);
+      x.fillStyle="#ecd6ae"; x.beginPath();
+      x.moveTo(540,880); x.lineTo(820,660); x.lineTo(540,470); x.lineTo(260,660); x.closePath(); x.fill();
+    }
+    // 글씨가 묻히지 않게 아주 옅은 크림 베일
+    x.fillStyle="rgba(251,244,230,.42)"; x.fillRect(0,0,W,W);
+
+    x.textAlign="center";
+    // 글자마다 크림 후광을 둘러 어떤 배경에서도 읽히게
+    const txt=(t,cx,y,size,fill,weight)=>{
+      x.font=FONT(size,weight); x.lineJoin="round";
+      x.lineWidth=Math.max(8,size*0.20); x.strokeStyle=cream; x.strokeText(t,cx,y);
+      x.fillStyle=fill; x.fillText(t,cx,y);
+    };
+
+    txt("⚾ 야구 룰 사전", W/2, 150, 46, red, 800);
+    txt(o.sub, W/2, 214, 34, ink, 700);
+    // 점수 — 화면의 주인공
+    txt(o.big, W/2, 600, 210, red, 900);
+    txt(o.grade, W/2, 706, 58, ink, 800);
+    txt(o.detail, W/2, 782, 36, "#44525f", 700);
+    // 꼬리말
+    txt(SHARE_URL.replace(/^https?:\/\//,""), W/2, 960, 28, ink, 700);
+  }
+
+  await loadShareBg();
+  paint(true);
+  try{
+    return await new Promise((res,rej)=>{ try{ c.toBlob(b=> b?res(b):rej(new Error("blob")), "image/jpeg", .92); }catch(e){ rej(e); } });
+  }catch(e){
+    // file:// 등에서 이미지가 캔버스를 오염시키면 그림 없이 다시 그린다
+    paint(false);
+    return new Promise(res=>c.toBlob(res,"image/jpeg",.92));
+  }
 }
 
 function miniToast(msg){
@@ -1246,7 +1279,7 @@ async function shareCard(o){
   try{ blob = await drawShareCard(o); }catch(e){ blob=null; }
   const text = `${o.shareText}\n야구 룰 사전에서 나도 해보기 👉 ${SHARE_URL}`;
   if(blob){
-    const file = new File([blob], "baseball-rules.png", {type:"image/png"});
+    const file = new File([blob], "baseball-rules.jpg", {type:"image/jpeg"});
     if(navigator.canShare && navigator.canShare({files:[file]})){
       try{ await navigator.share({files:[file], text, title:"야구 룰 사전"}); return; }
       catch(e){ if(e && e.name==="AbortError") return; }
@@ -1259,7 +1292,7 @@ async function shareCard(o){
   // 마지막 폴백: 이미지 저장 + 링크 복사
   if(blob){
     const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob); a.download="야구룰-결과.png"; a.click();
+    a.href=URL.createObjectURL(blob); a.download="야구룰-결과.jpg"; a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   }
   try{ await navigator.clipboard.writeText(text); miniToast("이미지를 저장하고 링크를 복사했어요"); }
