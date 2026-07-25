@@ -2,12 +2,18 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>야구 룰 사전 ⚾ | 입문자부터 야친자까지</title>
 <meta name="description" content="야구 룰과 용어를 입문자부터 야친자까지 단계별로 설명하고 퀴즈로 익히는 비공식 야구 룰 사전." />
 <meta name="theme-color" content="#fbf4e6" />
 <link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="favicon-64.png" sizes="64x64" />
+<!-- 웹앱(홈 화면 설치) — iOS Safari용 -->
 <link rel="apple-touch-icon" href="apple-touch-icon-180.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="야구룰" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <style>
   :root{
     --bg:#0f1419; --panel:#171e26; --panel2:#1e2731; --line:#2a3542;
@@ -192,14 +198,18 @@
      ================================================================== */
   :root{
     --bg:#fbf4e6; --panel:#ffffff; --panel2:#fff6e6; --line:#1b2a38;
-    --txt:#1b2a38; --sub:#5b6a78; --accent:#e23b3b; --accent2:#c62f2f;
-    --l1:#2f9e44; --l2:#1c72c4; --l3:#6d43c0; --l4:#d33a5c;
+    --txt:#1b2a38; --sub:#5b6a78; --accent:#cf2b2b; --accent2:#c62f2f;
+    --l1:#1f7a33; --l2:#1c72c4; --l3:#6d43c0; --l4:#d33a5c;
   }
   body{ background:#fbf4e6; color:var(--txt); }
   img.sprite{ image-rendering:pixelated; image-rendering:crisp-edges; }
 
-  /* 배경: 큰 빨간 실밥 (야구공) */
-  #bgSeam{ position:fixed; inset:0; width:100%; height:100%; z-index:-1; opacity:.15; pointer-events:none; }
+  /* 배경: 픽셀 야구장 그라운드 (JS로 그리드 렌더) */
+  #bgField{ position:fixed; inset:0; width:100%; height:100%; z-index:-2; opacity:.85;
+    pointer-events:none; image-rendering:pixelated; }
+  /* 그라운드 위 글씨가 뜨지 않도록 아주 옅은 크림 베일 */
+  #bgVeil{ position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:linear-gradient(180deg,rgba(251,244,230,.55),rgba(251,244,230,.28) 22%,rgba(251,244,230,.28)); }
 
   /* 헤더 */
   header .ball-sprite{ width:82px; height:82px; filter:drop-shadow(3px 3px 0 rgba(27,42,56,.35)); }
@@ -271,10 +281,92 @@
 
   /* 픽셀 스텝 느낌: 부드러운 그림자 대신 하드 섀도만 */
   .wrap{ position:relative; z-index:1; }
+
+  /* ==================================================================
+     👀 가독성 보정 — 다크 테마에서 남은 연회색 글씨 / 동일색 배경 정리
+     ================================================================== */
+
+  /* (1) 밝은 카드·패널 위 본문: #d3dde6(다크용 연회색) → 진한 잉크색 */
+  .card .body p,
+  .pos-detail p,
+  .legend-list .txt{ color:#22313f; }
+  .card .body p b, .legend-list .txt b, .pos-detail p b{ color:var(--accent2); }
+
+  /* (2) 상황 칩 — '전체 상황'이 켜지면 빨강 배경 + 빨강 글씨라 안 보이던 문제 */
+  .chip.on{ background:#fff2d9; color:#a52121; border-color:var(--accent); }
+  .chip[data-sit="all"].on{ background:var(--accent); color:#fff; border-color:var(--line); }
+
+  /* (3) 숙련도 탭 — 활성 배경 위 글씨/점 대비 확보 (점이 배경색과 같아 사라지던 문제) */
+  .tab.on{ color:#fff; }
+  .tab[data-lv="1"].on{ background:var(--l1); color:#fff; }
+  .tab[data-lv="2"].on{ background:var(--l2); color:#fff; }
+  .tab[data-lv="3"].on{ background:var(--l3); color:#fff; }
+  .tab[data-lv="4"].on{ background:var(--l4); color:#fff; }
+  .tab.on .dot{ background:#fff !important; box-shadow:0 0 0 1.5px rgba(27,42,56,.25); }
+
+  /* (4) 검색 추천 목록 — 호버/키보드 선택 배경이 흰색이라 표시가 안 보이던 문제 */
+  .suggest .item:hover,.suggest .item.active{ background:#fff2d9; }
+  .search-inner input::placeholder{ color:#7c8a97; }
+
+  /* (5) 눌린 상태 강조: 퀴즈 보기 · 포지션 범례 */
+  .answer:hover:not(:disabled){ background:#fffaf0; }
+  .pos-legend button.sel{ background:#fff2d9; color:var(--txt); font-weight:800; }
+  .pos-legend button.sel .n{ background:var(--accent); color:#fff; }
+
+  /* (6) 퀴즈 문제 옆 레벨 태그: 틴트 배경 + 테두리로 또렷하게 */
+  .quiz-q .qtext .lv{ background:#fff; border:2px solid currentColor; }
+
+  /* (7) 그라운드 배경 위에 바로 놓이는 글씨: 색 진하게 + 크림 후광 */
+  header p, .filt-label, .levelhint, .count, .section-sub, .section-title, footer{
+    color:#35424e; text-shadow:0 1px 0 rgba(251,244,230,.9), 0 0 6px rgba(251,244,230,.85);
+  }
+  header h1{ text-shadow:2px 2px 0 rgba(251,244,230,.95), 0 0 10px rgba(251,244,230,.8); }
+  .section-title{ color:var(--txt); }
+
+  /* ==================================================================
+     📱 웹앱(PWA) — 설치 버튼 · 업데이트 알림 · 노치 안전영역
+     ================================================================== */
+  body{ padding-bottom:calc(60px + env(safe-area-inset-bottom));
+    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+  header{ padding-top:calc(30px + env(safe-area-inset-top)); }
+  .search-box{ top:env(safe-area-inset-top); }
+  /* 설치된 앱(standalone)에서는 브라우저 주소창이 없으므로 상단 여백을 조금 더 */
+  @media (display-mode:standalone){
+    header{ padding-top:calc(22px + env(safe-area-inset-top)); }
+  }
+
+  .install-btn{ position:fixed; right:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:80;
+    display:none; align-items:center; gap:7px; padding:11px 15px; cursor:pointer;
+    background:var(--accent); color:#fff; font-size:14px; font-weight:800; font-family:inherit;
+    border:3px solid var(--line); border-radius:10px; box-shadow:4px 4px 0 rgba(27,42,56,.8);
+    transition:transform .05s, box-shadow .05s; }
+  .install-btn.on{ display:flex; }
+  .install-btn:active{ transform:translate(4px,4px); box-shadow:0 0 0 rgba(0,0,0,0); }
+  .install-btn img{ width:20px; height:20px; }
+
+  .ios-tip{ position:fixed; left:14px; right:14px; bottom:calc(72px + env(safe-area-inset-bottom)); z-index:81;
+    display:none; background:#fff; color:var(--txt); font-size:13.5px; line-height:1.6;
+    border:3px solid var(--line); border-radius:10px; box-shadow:5px 5px 0 rgba(27,42,56,.85); padding:13px 14px; }
+  .ios-tip.on{ display:block; }
+  .ios-tip b{ color:var(--accent2); }
+  .ios-tip .x{ float:right; margin-left:10px; border:none; background:none; font-size:18px;
+    cursor:pointer; color:var(--sub); font-family:inherit; }
+
+  .toast{ position:fixed; left:14px; right:14px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:90;
+    display:none; align-items:center; gap:10px; background:#fff; color:var(--txt); font-size:13.5px; font-weight:700;
+    border:3px solid var(--line); border-radius:10px; box-shadow:5px 5px 0 rgba(27,42,56,.85); padding:12px 13px; }
+  .toast.on{ display:flex; }
+  .toast button{ margin-left:auto; flex:0 0 auto; padding:8px 12px; cursor:pointer; font-family:inherit;
+    background:var(--accent); color:#fff; font-size:13px; font-weight:800;
+    border:2px solid var(--line); border-radius:8px; }
+  .offline-badge{ display:none; text-align:center; font-size:12px; font-weight:700; color:#7a4a00;
+    background:#ffe9b8; border:2px solid var(--line); border-radius:8px; padding:6px 10px; margin:10px 0 0; }
+  .offline-badge.on{ display:block; }
 </style>
 </head>
 <body>
-<svg id="bgSeam" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+<svg id="bgField" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+<div id="bgVeil" aria-hidden="true"></div>
 <div class="wrap">
   <header>
     <img class="sprite ball-sprite" src="sprite-baseball.png" alt="야구공" width="80" height="80" />
@@ -415,7 +507,22 @@
     ⚾ 야구 룰 사전 · 카드를 눌러 자세히 · 파란 링크는 관련 룰로 이동<br>
     <span style="opacity:.75">비공식 팬 제작 앱입니다. KBO 등 공식 기관과 무관하며, 룰 설명은 참고용으로 실제 규정과 다를 수 있어요.</span><br>
     <span style="opacity:.6">© 2026 야구 룰 사전</span>
+    <div class="offline-badge" id="offlineBadge">📴 오프라인 — 저장된 내용으로 보고 있어요</div>
   </footer>
+</div>
+
+<!-- 웹앱 설치 · 업데이트 UI -->
+<button class="install-btn" id="installBtn">
+  <img class="sprite" src="sprite-baseball.png" alt="" width="20" height="20" />앱 설치
+</button>
+<div class="ios-tip" id="iosTip">
+  <button class="x" id="iosTipClose" aria-label="닫기">×</button>
+  <b>홈 화면에 추가</b>하면 앱처럼 쓸 수 있어요.<br>
+  사파리 하단 <b>공유 <span aria-hidden="true">⬆️</span></b> → <b>홈 화면에 추가</b>를 눌러주세요.
+</div>
+<div class="toast" id="updateToast">
+  ⚾ 새 버전이 준비됐어요.
+  <button id="updateBtn">새로고침</button>
 </div>
 
 <script src="rules-data.js"></script>
@@ -432,16 +539,23 @@ let curLevel="all", curSit="all", curQuery="", sugIndex=-1;
 const $=id=>document.getElementById(id);
 const listEl=$("list"),countEl=$("count"),qEl=$("q"),sugEl=$("suggest"),clrEl=$("clr"),hintEl=$("levelhint");
 
-/* ---------- 뷰 전환 ---------- */
+/* ---------- 뷰 전환 (주소의 #해시로 관리 → 뒤로가기·앱 바로가기 지원) ---------- */
+const VIEWS=["rules","pos","guide","quiz"];
+function showView(v,scroll){
+  if(!VIEWS.includes(v)) v="rules";
+  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x.getAttribute("data-view")===v));
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
+  $("view-"+v).classList.add("on");
+  if(scroll!==false) window.scrollTo({top:0,behavior:"smooth"});
+}
+function curView(){return (location.hash||"#rules").slice(1);}
 document.querySelectorAll(".nav button").forEach(b=>{
   b.addEventListener("click",()=>{
-    document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("on",x===b));
     const v=b.getAttribute("data-view");
-    document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
-    $("view-"+v).classList.add("on");
-    window.scrollTo({top:0,behavior:"smooth"});
+    if(curView()===v) showView(v); else location.hash=v;   // hashchange가 화면을 바꿈
   });
 });
+window.addEventListener("hashchange",()=>showView(curView()));
 
 /* ---------- 검색 유틸 ---------- */
 function norm(s){return (s||"").toLowerCase().replace(/[\s·\-\.]/g,"");}
@@ -853,46 +967,157 @@ function showResult(){
 }
 
 /* =====================================================
-   배경: 큰 빨간 실밥(야구공) — 픽셀 사다리 스티치
+   배경: 픽셀 야구장 그라운드
+   40×60 칸 그리드를 좌표 계산으로 칠한 도트 그림.
+   홈플레이트가 아래 중앙(20,50), 외야가 위쪽.
    ===================================================== */
-function buildSeams(){
-  const svg=document.getElementById('bgSeam'); if(!svg) return;
-  function cubic(p,t){
-    const m=1-t, a=m*m*m, b=3*m*m*t, c=3*m*t*t, d=t*t*t;
-    const x=a*p[0][0]+b*p[1][0]+c*p[2][0]+d*p[3][0];
-    const y=a*p[0][1]+b*p[1][1]+c*p[2][1]+d*p[3][1];
-    const dx=3*m*m*(p[1][0]-p[0][0])+6*m*t*(p[2][0]-p[1][0])+3*t*t*(p[3][0]-p[2][0]);
-    const dy=3*m*m*(p[1][1]-p[0][1])+6*m*t*(p[2][1]-p[1][1])+3*t*t*(p[3][1]-p[2][1]);
-    return {x,y,a:Math.atan2(dy,dx)*180/Math.PI};
-  }
-  const seams=[
-    [[150,20],[245,180],[245,420],[150,580]],  // 왼쪽 실밥 ")"
-    [[250,20],[155,180],[155,420],[250,580]]   // 오른쪽 실밥 "("
-  ];
-  let s='';
-  seams.forEach(cp=>{
-    const N=24;
-    for(let i=0;i<=N;i++){
-      const p=cubic(cp,i/N);
-      // 실밥 한 땀 = 실 방향에 수직인 빨간 블록(픽셀)
-      s+=`<g transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})">`
-       + `<rect x="-2.5" y="-11" width="5" height="9" fill="#e23b3b"/>`
-       + `<rect x="-2.5" y="2"  width="5" height="9" fill="#e23b3b"/></g>`;
+function buildGround(){
+  const svg=document.getElementById('bgField'); if(!svg) return;
+  const COLS=40, ROWS=60, U=10;          // 칸 크기 10 → viewBox 400×600
+  const HOME_C=20, HOME_R=50;            // 홈플레이트 위치(칸)
+  const C={
+    stand:'#e7dfcc', dot:'#d6cbb1',      // 관중석 · 관중 도트
+    wallTop:'#8ea87e', wall:'#a8bd97',   // 외야 담장(윗선/면)
+    track:'#e5cfa8',                     // 워닝트랙 · 파울지역 흙
+    gA:'#d9e8c8', gB:'#cadfb4',          // 잔디 예초 줄무늬 2색
+    dirt:'#ecd6ae', mound:'#e0c599',     // 내야 흙 · 마운드
+    line:'#fffdf5'                       // 라인 · 베이스
+  };
+
+  // 칸 하나의 색 결정
+  function px(c,r){
+    const dx=(c+0.5)-HOME_C, dy=HOME_R-(r+0.5);   // 홈 기준 좌우/앞뒤 거리
+    const ax=Math.abs(dx);
+    const dist=Math.sqrt(dx*dx+dy*dy);            // 홈에서의 거리(담장 곡선용)
+    const dia=ax+dy;                              // 다이아몬드 거리(내야·예초무늬용)
+    const foul=ax-dy;                             // 0보다 크면 파울지역
+
+    // 담장 밖 · 홈 뒤 · 파울지역 바깥 = 관중석
+    if(dy<-6.5 || foul>8 || dist>43) return ((c*5+r*3)%13===0)?C.dot:C.stand;
+    // 외야 담장 + 워닝트랙
+    if(dist>40.5) return C.wallTop;
+    if(dist>37.5) return C.wall;
+    if(dist>34)   return C.track;
+    // 홈플레이트 주변 흙
+    if(dist<5.5)  return dist<1.4?C.line:C.dirt;
+
+    // 내야 다이아몬드
+    if(dia<=23 && dy>-1){
+      const md=Math.sqrt(dx*dx+(dy-10)*(dy-10));                 // 마운드까지 거리
+      if(md<1.0) return C.line;                                  // 투수판
+      if(md<3.4) return C.mound;                                 // 마운드
+      if(Math.abs(dx-10)<1 && Math.abs(dy-10)<1) return C.line;  // 1루
+      if(Math.abs(dx+10)<1 && Math.abs(dy-10)<1) return C.line;  // 3루
+      if(ax<1 && Math.abs(dy-20)<1)              return C.line;  // 2루
+      if(Math.abs(foul)<0.9 && dy>=0 && dia<=21) return C.line;  // 내야 파울라인
+      if(dia<=17) return (Math.floor(dia/4)%2)?C.gB:C.gA;        // 내야 잔디
+      return C.dirt;                                             // 베이스패스 흙
     }
-  });
+
+    // 파울라인 · 파울지역 흙
+    if(foul>-0.2 && foul<1.1) return C.line;
+    if(foul>=1.1) return C.track;
+    // 외야 잔디 — 다이아몬드 모양 예초 줄무늬
+    return (Math.floor(dia/4)%2)?C.gB:C.gA;
+  }
+
+  // 같은 색이 이어지는 칸은 하나의 rect로 묶어 출력(가로 런렝스)
+  let s=`<rect width="${COLS*U}" height="${ROWS*U}" fill="${C.gA}"/>`;
+  for(let r=0;r<ROWS;r++){
+    const row=[]; for(let c=0;c<COLS;c++) row.push(px(c,r));
+    let c=0;
+    while(c<COLS){
+      let n=1; while(c+n<COLS && row[c+n]===row[c]) n++;
+      s+=`<rect x="${c*U}" y="${r*U}" width="${n*U}" height="${U}" fill="${row[c]}"/>`;
+      c+=n;
+    }
+  }
   svg.innerHTML=s;
 }
 
 /* ---------- init ---------- */
 buildChips(); setTabs(); setChips(); render();
 buildField(); buildBroadcast(); buildScoreboard();
-buildSeams();
+buildGround();
 showQuizScreen("start");
+showView(curView(), false);   // 앱 바로가기(#quiz 등)로 열었을 때 해당 화면부터
 
-/* PWA: 서비스워커 등록 (HTTPS/GitHub Pages에서 오프라인 지원) */
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
-}
+/* =====================================================
+   웹앱(PWA) — 설치 · 업데이트 · 오프라인
+   ===================================================== */
+(function pwa(){
+  const installBtn=$("installBtn"), iosTip=$("iosTip"), toast=$("updateToast"), badge=$("offlineBadge");
+  const standalone = window.matchMedia('(display-mode: standalone)').matches
+                  || window.navigator.standalone===true;
+  // file:// 이나 프라이빗 모드에선 localStorage가 막힐 수 있어 감싸서 사용
+  const store={
+    get(k){ try{return localStorage.getItem(k);}catch(e){return null;} },
+    set(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+  };
+
+  /* --- 오프라인 표시 --- */
+  const syncNet=()=>badge.classList.toggle("on", !navigator.onLine);
+  window.addEventListener("online",syncNet); window.addEventListener("offline",syncNet); syncNet();
+
+  /* --- 설치 버튼 (Android/Chrome/Edge: beforeinstallprompt) --- */
+  let deferred=null;
+  window.addEventListener("beforeinstallprompt",e=>{
+    e.preventDefault(); deferred=e;
+    if(!standalone && store.get("hideInstall")!=="1") installBtn.classList.add("on");
+  });
+  window.addEventListener("appinstalled",()=>{
+    deferred=null; installBtn.classList.remove("on"); store.set("hideInstall","1");
+  });
+
+  /* --- iOS 사파리는 prompt API가 없어 '홈 화면에 추가' 안내로 대체 --- */
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)
+           || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  if(isIOS && !standalone && store.get("hideInstall")!=="1"){
+    installBtn.classList.add("on");
+  }
+  installBtn.addEventListener("click", async ()=>{
+    if(deferred){                       // 크롬 계열: 네이티브 설치창
+      deferred.prompt();
+      const {outcome}=await deferred.userChoice.catch(()=>({outcome:"dismissed"}));
+      deferred=null;
+      if(outcome==="accepted") installBtn.classList.remove("on");
+    }else{                              // iOS: 수동 안내
+      iosTip.classList.toggle("on");
+    }
+  });
+  $("iosTipClose").addEventListener("click",()=>{
+    iosTip.classList.remove("on"); installBtn.classList.remove("on");
+    store.set("hideInstall","1");
+  });
+
+  /* --- 서비스워커: 오프라인 캐시 + 새 버전 알림 --- */
+  if(!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
+  window.addEventListener("load", async ()=>{
+    let reg;
+    try{ reg = await navigator.serviceWorker.register("sw.js"); }catch(e){ return; }
+
+    const offerUpdate=worker=>{
+      toast.classList.add("on");
+      $("updateBtn").onclick=()=>{ toast.classList.remove("on"); worker.postMessage("SKIP_WAITING"); };
+    };
+    // 이미 대기 중인 새 버전이 있으면 바로 안내
+    if(reg.waiting && navigator.serviceWorker.controller) offerUpdate(reg.waiting);
+    // 설치 도중 새 버전을 발견한 경우
+    reg.addEventListener("updatefound",()=>{
+      const nw=reg.installing; if(!nw) return;
+      nw.addEventListener("statechange",()=>{
+        if(nw.state==="installed" && navigator.serviceWorker.controller) offerUpdate(nw);
+      });
+    });
+    // 새 워커가 제어를 잡으면 한 번만 새로고침
+    let reloading=false;
+    navigator.serviceWorker.addEventListener("controllerchange",()=>{
+      if(reloading) return; reloading=true; location.reload();
+    });
+    // 앱으로 돌아올 때마다 업데이트 확인
+    document.addEventListener("visibilitychange",()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
+  });
+})();
 </script>
 </body>
 </html>
