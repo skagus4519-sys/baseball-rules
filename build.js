@@ -84,6 +84,13 @@ function page({title, desc, canonical, body, jsonld}){
 <link rel="icon" href="${SITE}/favicon-64.png" sizes="64x64" />
 <style>${CSS}</style>
 <script type="application/ld+json">${JSON.stringify(jsonld)}</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3PRP6G548J"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-3PRP6G548J');
+</script>
 </head>
 <body>
 <div class="wrap">
