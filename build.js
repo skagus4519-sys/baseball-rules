@@ -16,7 +16,7 @@ require('./rules-data.js');
 const RULES = window.RULES, SIT_ICON = window.SIT_ICON;
 
 /* 배포 주소 — 다른 도메인으로 옮기면 이 값만 바꾸면 됩니다 */
-const SITE = 'https://baseball-rule.netlify.app';
+const SITE = 'https://skagus4519-sys.github.io/baseballrule';
 const OUT = __dirname;
 
 const LV = {1:'입문자', 2:'집관러', 3:'직관러', 4:'야친자'};

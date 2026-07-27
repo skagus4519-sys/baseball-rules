@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://baseball-rule.netlify.app/sitemap.xml
+Sitemap: https://skagus4519-sys.github.io/baseballrule/sitemap.xml
